@@ -1,4 +1,4 @@
-# Towards Practicality and Backdoor Stealthiness in Model Parameter Space
+# Towards Backdoor Stealthiness in Model Parameter Space
 
 ## Environment settings
 check requirements.txt
