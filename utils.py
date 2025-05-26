@@ -11,10 +11,6 @@ from torch.optim import AdamW, Adam
 from models.vgg import VGG16, VGG19
 from models.resnet import resnet18, resnet34, resnet50
 from models.densenet import DenseNet121
-from models.efficientnet import EfficientNetB0
-from models.swin import SwinTransformer
-from models.inception_next import inception_next_tiny, inception_next_small
-
 
 def set_seed(seed):
     np.random.seed(seed)

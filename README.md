@@ -1,7 +1,13 @@
 # Towards Backdoor Stealthiness in Model Parameter Space
 
 ## Environment settings
-check requirements.txt
+
+```
+conda create --name grond python=3.9
+conda activate grond
+conda install pytorch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 pytorch-cuda=12.1 -c pytorch -c nvidia
+conda install --yes -c conda-forge --file requirements.txt 
+```
 
 ## Train a parameter space backdoor model
 
