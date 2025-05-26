@@ -9,17 +9,22 @@ data_dir="$my_dir/data"
 record_dir="$my_dir/record"
 timestamp=$(date +"T%d-%m_%H-%M")
 
-# gpu=$(python get_gpu.py)
+# conda activate grond
+source /vol/csedu-nobackup/project/hberendsen/miniconda3/bin/activate grond
 
-# if [[ ! $gpu =~ "RTX 2080 Ti" ]]; then
-#     echo "Unexpected GPU: ${gpu}"
-#     exit 1
-# fi
+gpu=$(python get_gpu.py)
+
+if [[ ! $gpu =~ "RTX 2080 Ti" ]]; then
+    echo "Unexpected GPU: ${gpu}"
+    exit 1
+fi
 
 pratio_label=$(echo p$pratio | tr . -)
 attack_id="${attack}_${model}_${dataset}_${pratio_label}"
 
-python train_backdoor.py --pr 0.1 --clean_data_path $data_dir/$dataset
+python train_backdoor.py --arch $model --dataset $dataset --pr 0.1 --epochs $n_epochs \
+                         --target_cls 0 --num_workers 2 \
+                         --clean_data_path $data_dir/$dataset --out_dir $record_dir/$attack_id
 
 # Handle Grond failure
 if [[ $? -ne 0 ]]; then
