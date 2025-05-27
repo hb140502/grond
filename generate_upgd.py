@@ -111,8 +111,8 @@ def main(args):
         args.channel   = 3
         args.data_shape = (args.channel, args.img_size, args.img_size)
         transform_test = transforms.Compose([transforms.ToTensor()])
-        data_set = TinyImageNet(args.data_root, split="Train", download=True, transform=transform_test)
-        test_set = TinyImageNet(args.data_root, split="False", download=True, transform=transform_test)
+        data_set = TinyImageNet(args.data_root, split="train", download=True, transform=transform_test)
+        test_set = TinyImageNet(args.data_root, split="val", download=True, transform=transform_test)
     elif args.dataset=='gtsrb':
         args.num_classes=43
         args.img_size  = 32

@@ -20,7 +20,6 @@ def main(args):
     if args.dataset in ['cifar10', 'cifar100', 'tiny']:
         data_set = POI(args.dataset, args.clean_data_path, args.pr, target_cls=args.target_cls, transform=transform_train[args.dataset], save_path=args.poison_indices_save_path, upgd_path=args.upgd_path)
         poi_test = POI_TEST(args.dataset, args.clean_data_path, target_cls=args.target_cls, transform=transform_test, upgd_path=args.upgd_path)
-        test_set = datasets.CIFAR10(args.clean_data_path, train=False, transform=transform_test)
 
         if args.dataset == "cifar10":
             args.num_classes = 10

@@ -24,12 +24,7 @@ transform_train = {
         transforms.RandomRotation(10),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor()
-    ]),
-    "cifar10": transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
-        transforms.RandomRotation(10),
-        transforms.ToTensor()
-    ]),    
+    ]),   
     "tiny": transforms.Compose([
         transforms.RandomCrop(64, padding=4),
         transforms.RandomRotation(10),
@@ -37,6 +32,7 @@ transform_train = {
     ])    
 }   
 
+transform_train["cifar100"] = transform_train["cifar10"]
 transform_train["gtsrb"] = transform_train["cifar10"]
 
 

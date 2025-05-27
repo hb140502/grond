@@ -161,8 +161,15 @@ class POI_TEST(Dataset):
         self.toimg = transforms.Compose([transforms.ToPILImage()])
 
         if exclude_target:
-            self.cleanset.data = self.cleanset.data[non_target_cls_ids, :, :, :]
-            poison_target = np.repeat(target_cls, len(self.cleanset.data), axis=0)
+            # Tiny ImageNet has different attribute names than CIFAR10(0)
+            if dataset == "tiny":
+                self.cleanset.samples = [self.cleanset.samples[i] for i in non_target_cls_ids]
+                self.cleanset.imgs = [self.cleanset.imgs[i] for i in non_target_cls_ids]
+                poison_target = np.repeat(target_cls, len(self.cleanset.samples), axis=0)
+            else:
+                self.cleanset.data = self.cleanset.data[non_target_cls_ids, :, :, :]
+                poison_target = np.repeat(target_cls, len(self.cleanset.data), axis=0)
+            
             self.targets = list(poison_target)
 
 

@@ -20,7 +20,8 @@ if [[ ! $gpu =~ "RTX 2080 Ti" ]]; then
 fi
 
 pratio_label=$(echo p$pratio | tr . -)
-attack_id="${attack}_${model}_${dataset}_${pratio_label}"
+model_lowercase=$(echo "$model" | awk '{print tolower($0)}')
+attack_id="${attack}_${model_lowercase}_${dataset}_${pratio_label}"
 
 function check_failure() {
     error_code=$1
@@ -33,17 +34,16 @@ function check_failure() {
     fi
 }
 
-# Generate UPGD trigger
-echo "!!! GENERATING TRIGGER !!!"
-model_lowercase=$(echo "$model" | awk '{print tolower($0)}')
-clean_model_path="$record_dir/prototype_${model_lowercase}_${dataset}_pNone/clean_model.pth"
-python generate_upgd.py --arch $model --dataset $dataset \
-                        --target_cls 0 \
-                        --num_workers 2 \
-                        --data_root $data_dir/$dataset --model_path $clean_model_path \
-                        --upgd_path $record_dir/$attack_id
+# # Generate UPGD trigger
+# echo "!!! GENERATING TRIGGER !!!"
+# clean_model_path="$record_dir/prototype_${model_lowercase}_${dataset}_pNone/clean_model.pth"
+# python generate_upgd.py --arch $model --dataset $dataset \
+#                         --target_cls 0 \
+#                         --num_workers 2 \
+#                         --data_root $data_dir/$dataset --model_path $clean_model_path \
+#                         --upgd_path $record_dir/$attack_id
 
-check_failure $? "FAILURE WHILE GENERATING TRIGGER"
+# check_failure $? "FAILURE WHILE GENERATING TRIGGER"
 
 # Train on data poisoned with above trigger
 echo "!!! TRAINING BACKDOORED MODEL !!! "
@@ -57,5 +57,5 @@ check_failure $? "FAILURE WHILE TRAINING MODEL"
 
 echo "!!! FINISHED TRAINING !!!"
 
-# cd $record_dir    
-# tar -cf "${attack_id}_${timestamp}.tar" $attack_id
+cd $record_dir    
+tar -cf "${attack_id}_${timestamp}.tar" $attack_id
