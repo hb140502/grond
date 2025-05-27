@@ -88,7 +88,7 @@ class POI(Dataset):
     classes = ['airplane', 'automobile', 'bird', 'cat', 'deer',
                'dog', 'frog', 'horse', 'ship', 'truck']
 
-    def __init__(self, dataset, root, poison_rate, seed=0, transform=None, poison_indices=None, target_cls=0, upgd_path='/home/xxu/weight_backdoor/results/upgd-cifar10-ResNet18-Linf-eps8.0/', save_path=None):
+    def __init__(self, dataset, root, poison_rate, seed=0, transform=None, poison_indices=None, save_path=None, target_cls=0, upgd_path='/home/xxu/weight_backdoor/results/upgd-cifar10-ResNet18-Linf-eps8.0/'):
         self.transform = transform
 
         if dataset == "cifar10":
@@ -100,6 +100,7 @@ class POI(Dataset):
         else:
             raise Exception(f"Unimplemented dataset: {dataset}")
         
+        self.targets = self.cleanset.targets
         self.target_cls = target_cls
 
         target_cls_ids = [i for i in range(len(self.cleanset.targets)) if self.cleanset.targets[i] == target_cls]
@@ -112,11 +113,7 @@ class POI(Dataset):
             self.poison_indices = random.sample(target_cls_ids, int(poison_rate*len(target_cls_ids)))
 
         if save_path:
-            poison_settings = {
-                "indices": self.poison_indices,
-                "upgd_path": self.upgd_path
-            }
-            torch.save(poison_settings, save_path)
+            torch.save(self.poison_indices, save_path)
 
         self.upgd_data = torch.load(os.path.join(upgd_path, 'upgd_'+str(target_cls)+'.pth'), map_location='cpu')
         self.totensor = transforms.Compose([transforms.ToTensor()])
@@ -155,7 +152,7 @@ class POI_TEST(Dataset):
         else:
             raise Exception(f"Unimplemented dataset: {dataset}")
         
-        self.targets = self.c10.targets
+        self.targets = self.cleanset.targets
 
         non_target_cls_ids = [i for i in range(len(self.cleanset.targets)) if self.cleanset.targets[i] != target_cls]
 

@@ -18,7 +18,7 @@ def main(args):
     set_seed(args.seed)
 
     if args.dataset in ['cifar10', 'cifar100', 'tiny']:
-        data_set = POI(args.dataset, args.clean_data_path, args.pr, target_cls=args.target_cls, transform=transform_train[args.dataset], save_path=args.poison_settings_save_path, upgd_path=args.upgd_path)
+        data_set = POI(args.dataset, args.clean_data_path, args.pr, target_cls=args.target_cls, transform=transform_train[args.dataset], save_path=args.poison_indices_save_path, upgd_path=args.upgd_path)
         poi_test = POI_TEST(args.dataset, args.clean_data_path, target_cls=args.target_cls, transform=transform_test, upgd_path=args.upgd_path)
         test_set = datasets.CIFAR10(args.clean_data_path, train=False, transform=transform_test)
 
@@ -100,7 +100,6 @@ if __name__ == "__main__":
     parser.add_argument('--dataset', default='cifar10', type=str)
     parser.add_argument('--out_dir', default='results/', type=str)
     parser.add_argument('--clean_data_path', default='../data/cifar10', type=str)
-    parser.add_argument('--ex_des', default='', type=str)
     parser.add_argument('--upgd_path', default='./results/upgd-cifar10-ResNet18-Linf-eps8.0/', type=str)
     parser.add_argument('--target_cls', default=2, type=int)
     parser.add_argument('--u', default=3., type=float, help='lipschitzness_pruning threshold hyperparameter')
@@ -115,12 +114,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     
-    args.exp_name = '{}-{}-{}on{}-lr{}-bs{}-wd{}-pr{}-seed{}-{}'.format(args.arch, args.dataset,
-        args.train_loss,'upgd_backdoor', args.lr, args.batch_size, 
-        args.weight_decay, args.pr, args.seed, args.ex_des)
-    args.tensorboard_path = os.path.join(os.path.join(args.out_dir, args.exp_name), 'tensorboard')
-    args.model_save_path = os.path.join(os.path.join(args.out_dir, args.exp_name), 'checkpoint.pth')
-    args.poison_settings_save_path = os.path.join(os.path.join(args.out_dir, args.exp_name), 'poison_settings.pth')
+    args.tensorboard_path = os.path.join(args.out_dir, 'tensorboard')
+    args.model_save_path = os.path.join(args.out_dir, 'checkpoint.pth')
+    args.poison_indices_save_path = os.path.join(args.out_dir, 'poison_indices.pth')
     args.lr_milestones = [100, 150]
     args.lr_step = 0.1
     args.log_gap = 1

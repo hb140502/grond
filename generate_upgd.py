@@ -71,8 +71,8 @@ def universal_target_attack(model, loader, target_class, args):
 
 
 def upgd_generate(args, loader, model):
-    poison = universal_target_attack(model, loader, args.target_class, args)
-    return poison
+    poison = universal_target_attack(model, loader, args.target_cls, args)
+    return poison.squeeze()
 
 
 
@@ -129,8 +129,8 @@ def main(args):
         exit(0)
 
     # data_set = folder_load(path='../data/TAP/', T=transform_test, poison_rate=1.0)
-    data_loader = DataLoader(data_set, batch_size=args.batch_size, num_workers=10, shuffle=True, pin_memory=True)
-    test_loader = DataLoader(test_set, batch_size=args.batch_size, num_workers=10, shuffle=True, pin_memory=True)
+    data_loader = DataLoader(data_set, batch_size=args.batch_size, num_workers=args.num_workers, shuffle=True, pin_memory=True)
+    test_loader = DataLoader(test_set, batch_size=args.batch_size, num_workers=args.num_workers, shuffle=True, pin_memory=True)
 
     model = make_and_restore_model(args, resume_path=args.model_path)
     model.eval()
@@ -139,7 +139,7 @@ def main(args):
 
     set_seed(args.seed)
     upgd = upgd_generate(args, data_loader, model)
-    file = 'upgd_'+str(args.target_class)+'.pth'
+    file = 'upgd_'+str(args.target_cls)+'.pth'
     torch.save(upgd, os.path.join(args.upgd_path, file))
 
 
@@ -155,19 +155,18 @@ if __name__ == "__main__":
     parser.add_argument('--model_path', default='results/clean_model_weight/checkpoint.pth', type=str)
 
     parser.add_argument('--dataset', default='cifar10', type=str)
-    parser.add_argument('--out_dir', default='results/', type=str)
     parser.add_argument('--data_root', default='../data', type=str)
     parser.add_argument('--upgd_path', default='./results/upgd', type=str)
 
     parser.add_argument('--gpuid', default=0, type=int)
 
+    parser.add_argument('--num_workers', default=6, type=int)
     parser.add_argument('--batch_size', default=256, type=int)
 
     parser.add_argument('--target_cls', default=0, type=int)
 
     args = parser.parse_args()
 
-    args.upgd_path = '{}-{}-{}-{}-eps{:.1f}'.format(args.upgd_path, args.dataset, args.arch, args.constraint, args.eps)
     if not os.path.exists(args.upgd_path):
         os.makedirs(args.upgd_path)
 

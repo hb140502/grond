@@ -98,7 +98,6 @@ if __name__ == "__main__":
     parser.add_argument('--dataset', default='cifar10', type=str)
     parser.add_argument('--out_dir', default='results/', type=str)
     parser.add_argument('--clean_data_path', default='../data/cifar10', type=str)
-    parser.add_argument('--ex_des', default='', type=str)
     parser.add_argument('--upgd_path', default='./results/upgd-cifar10-ResNet18-Linf-eps8.0', type=str)
     parser.add_argument('--target_cls', default=2, type=int)
     parser.add_argument('--model_save_path', default='./results/ResNet18-cifar10-STonupgd_backdoor-lr0.01-bs128-wd0.0005-pr0.1-seed0-/checkpoint.pth', type=str)
@@ -107,11 +106,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     
-    args.exp_name = '{}-{}on{}-lr{}-bs{}-wd{}-pr{}-seed{}-{}'.format(args.arch, 
-        args.train_loss,'upgd_backdoor', args.lr, args.batch_size, 
-        args.weight_decay, args.pr, args.seed, args.ex_des)
-    args.tensorboard_path = os.path.join(os.path.join(args.out_dir, args.exp_name), 'tensorboard')
-    # args.model_save_path = os.path.join(os.path.join(args.out_dir, args.exp_name), 'checkpoint.pth')
+    args.tensorboard_path = os.path.join(args.out_dir, 'tensorboard')
+    args.model_save_path = os.path.join(args.out_dir, 'checkpoint.pth')
     args.epochs = 200
     args.lr_milestones = [100, 150]
     args.lr_step = 0.1
