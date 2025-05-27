@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import datasets
+from Tiny import TinyImageNet
 from torchvision.utils import make_grid
 import torchvision
 import torchvision.transforms as transforms
@@ -70,12 +71,8 @@ def universal_target_attack(model, loader, target_class, args):
 
 
 def upgd_generate(args, loader, model):
-    # Generate universal perturbations for 10 class
-    poisons = []
-    for i in range(10):
-        poison = universal_target_attack(model, loader, i, args)
-        poisons.append(poison.squeeze())
-    return poisons
+    poison = universal_target_attack(model, loader, args.target_class, args)
+    return poison
 
 
 
@@ -100,6 +97,22 @@ def main(args):
         transform_test = transforms.Compose([transforms.ToTensor()])
         data_set = datasets.CIFAR10(args.data_root, train=True, download=True, transform=transform_test)
         test_set = datasets.CIFAR10(args.data_root, train=False, download=True, transform=transform_test)
+    elif args.dataset=='cifar100':
+        args.num_classes=100
+        args.img_size  = 32
+        args.channel   = 3
+        args.data_shape = (args.channel, args.img_size, args.img_size)
+        transform_test = transforms.Compose([transforms.ToTensor()])
+        data_set = datasets.CIFAR100(args.data_root, train=True, download=True, transform=transform_test)
+        test_set = datasets.CIFAR100(args.data_root, train=False, download=True, transform=transform_test)
+    elif args.dataset=='tiny':
+        args.num_classes=200
+        args.img_size  = 64
+        args.channel   = 3
+        args.data_shape = (args.channel, args.img_size, args.img_size)
+        transform_test = transforms.Compose([transforms.ToTensor()])
+        data_set = TinyImageNet(args.data_root, split="Train", download=True, transform=transform_test)
+        test_set = TinyImageNet(args.data_root, split="False", download=True, transform=transform_test)
     elif args.dataset=='gtsrb':
         args.num_classes=43
         args.img_size  = 32
@@ -126,9 +139,8 @@ def main(args):
 
     set_seed(args.seed)
     upgd = upgd_generate(args, data_loader, model)
-    for i in range(len(upgd)):
-        file_n = 'upgd_'+str(i)+'.pth'
-        torch.save(upgd[i], os.path.join(args.upgd_path, file_n))
+    file = 'upgd_'+str(args.target_class)+'.pth'
+    torch.save(upgd, os.path.join(args.upgd_path, file))
 
 
 if __name__ == "__main__":
@@ -150,6 +162,8 @@ if __name__ == "__main__":
     parser.add_argument('--gpuid', default=0, type=int)
 
     parser.add_argument('--batch_size', default=256, type=int)
+
+    parser.add_argument('--target_cls', default=0, type=int)
 
     args = parser.parse_args()
 

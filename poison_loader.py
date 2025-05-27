@@ -3,6 +3,7 @@ from sklearn import datasets
 from torchvision import datasets
 import torchvision.transforms as transforms
 from torch.utils.data.dataset import Dataset
+from Tiny import TinyImageNet
 import numpy as np
 from PIL import Image
 from copy import deepcopy
@@ -82,18 +83,26 @@ class CIFAR10dirty(Dataset):
         return len(self.targets)
 
 
-class CIFAR10_POI(Dataset):
+class POI(Dataset):
 
     classes = ['airplane', 'automobile', 'bird', 'cat', 'deer',
                'dog', 'frog', 'horse', 'ship', 'truck']
 
-    def __init__(self, root, poison_rate, seed=0, transform=None, poison_indices=None, target_cls=0, upgd_path='/home/xxu/weight_backdoor/results/upgd-cifar10-ResNet18-Linf-eps8.0/'):
+    def __init__(self, dataset, root, poison_rate, seed=0, transform=None, poison_indices=None, target_cls=0, upgd_path='/home/xxu/weight_backdoor/results/upgd-cifar10-ResNet18-Linf-eps8.0/', save_path=None):
         self.transform = transform
-        self.c10 = datasets.CIFAR10(root, train=True)
-        self.targets = self.c10.targets
+
+        if dataset == "cifar10":
+            self.cleanset = datasets.CIFAR10(root, train=True)
+        elif dataset == "cifar100":
+            self.cleanset = datasets.CIFAR100(root, train=True)
+        elif dataset == "tiny":
+            self.cleanset = TinyImageNet(root, split="train")
+        else:
+            raise Exception(f"Unimplemented dataset: {dataset}")
+        
         self.target_cls = target_cls
 
-        target_cls_ids = [i for i in range(len(self.c10.targets)) if self.c10.targets[i] == target_cls]
+        target_cls_ids = [i for i in range(len(self.cleanset.targets)) if self.cleanset.targets[i] == target_cls]
 
         if poison_indices is not None:
             self.poison_indices = poison_indices
@@ -102,6 +111,12 @@ class CIFAR10_POI(Dataset):
             # self.poison_indices = np.random.choice(range(50000), int(poison_rate*50000), replace=False)
             self.poison_indices = random.sample(target_cls_ids, int(poison_rate*len(target_cls_ids)))
 
+        if save_path:
+            poison_settings = {
+                "indices": self.poison_indices,
+                "upgd_path": self.upgd_path
+            }
+            torch.save(poison_settings, save_path)
 
         self.upgd_data = torch.load(os.path.join(upgd_path, 'upgd_'+str(target_cls)+'.pth'), map_location='cpu')
         self.totensor = transforms.Compose([transforms.ToTensor()])
@@ -110,13 +125,13 @@ class CIFAR10_POI(Dataset):
 
     def __getitem__(self, index):
         if index in self.poison_indices:
-            img = self.c10[index][0]
+            img = self.cleanset[index][0]
             img_tensor = torch.clamp(self.totensor(img)+self.upgd_data, 0, 1)
             img = self.toimg(img_tensor)
             target = self.targets[index]
         else: 
             target = self.targets[index]
-            img = self.c10[index][0]
+            img = self.cleanset[index][0]
 
         if self.transform is not None:
             img = self.transform(img)
@@ -126,30 +141,36 @@ class CIFAR10_POI(Dataset):
         return len(self.targets)
 
 
-class CIFAR10_POI_TEST(Dataset):
+class POI_TEST(Dataset):
 
-    classes = ['airplane', 'automobile', 'bird', 'cat', 'deer',
-               'dog', 'frog', 'horse', 'ship', 'truck']
-
-    def __init__(self, root, seed=0, transform=None, exclude_target=True, target_cls=0, upgd_path='/home/xxu/weight_backdoor/results/upgd-cifar10-ResNet18-Linf-eps8.0/'):
+    def __init__(self, dataset, root, seed=0, transform=None, exclude_target=True, target_cls=0, upgd_path='/home/xxu/weight_backdoor/results/upgd-cifar10-ResNet18-Linf-eps8.0/'):
         self.transform = transform
-        self.c10 = datasets.CIFAR10(root, train=False)
+
+        if dataset == "cifar10":
+            self.cleanset = datasets.CIFAR10(root, train=False)
+        elif dataset == "cifar100":
+            self.cleanset = datasets.CIFAR100(root, train=False)
+        elif dataset == "tiny":
+            self.cleanset = TinyImageNet(root, split="val")
+        else:
+            raise Exception(f"Unimplemented dataset: {dataset}")
+        
         self.targets = self.c10.targets
 
-        non_target_cls_ids = [i for i in range(len(self.c10.targets)) if self.c10.targets[i] != target_cls]
+        non_target_cls_ids = [i for i in range(len(self.cleanset.targets)) if self.cleanset.targets[i] != target_cls]
 
         self.upgd_data = torch.load(os.path.join(upgd_path, 'upgd_'+str(target_cls)+'.pth'), map_location='cpu')
         self.totensor = transforms.Compose([transforms.ToTensor()])
         self.toimg = transforms.Compose([transforms.ToPILImage()])
 
         if exclude_target:
-            self.c10.data = self.c10.data[non_target_cls_ids, :, :, :]
-            poison_target = np.repeat(target_cls, len(self.c10.data), axis=0)
+            self.cleanset.data = self.cleanset.data[non_target_cls_ids, :, :, :]
+            poison_target = np.repeat(target_cls, len(self.cleanset.data), axis=0)
             self.targets = list(poison_target)
 
 
     def __getitem__(self, index):
-        img = self.c10[index][0]
+        img = self.cleanset[index][0]
         target = self.targets[index]
 
         if self.transform is not None:

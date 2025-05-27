@@ -6,6 +6,8 @@ import torchvision
 import torch.nn as nn
 import torchvision.transforms as transforms
 
+from Tiny import TinyImageNet
+
 
 def build_cleanset(args):
     # Setting Dataset Required Parameters
@@ -16,7 +18,13 @@ def build_cleanset(args):
         args.img_size  = 32
         args.channel   = 3
         args.mean = [0.4914, 0.4822, 0.4465]
-        args.std = [0.2023, 0.1994, 0.2010]
+        args.std = [0.247, 0.243, 0.261]
+    elif args.dataset == "cifar100":
+        args.num_classes = 100
+        args.img_size  = 32
+        args.channel   = 3
+        args.mean = [0.5071, 0.4865, 0.4409]
+        args.std = [0.2673, 0.2564, 0.2762]
     elif args.dataset == "gtsrb":
         args.num_classes = 43
         args.img_size  = 32
@@ -25,12 +33,12 @@ def build_cleanset(args):
         args.std = None
         transforms_list_test.append(transforms.Resize(32))
         transforms_list_test.append(transforms.CenterCrop(32))
-    elif args.dataset == "tiny-imagenet":
+    elif args.dataset == "tiny":
         args.num_classes = 200
         args.img_size  = 64
         args.channel   = 3
-        args.mean = [0.485, 0.456, 0.406]
-        args.std = [0.229, 0.224, 0.225]
+        args.mean = [0.4802, 0.4481, 0.3975]
+        args.std = [0.2302, 0.2265, 0.2262]
     elif args.dataset == "imagenet200":
         args.num_classes = 200
         args.img_size  = 224
@@ -44,7 +52,11 @@ def build_cleanset(args):
         transforms_list.append(transforms.RandomResizedCrop(args.img_size))
     else:
         transforms_list.append(transforms.RandomCrop(args.img_size, padding=4))
-    transforms_list.append(transforms.RandomHorizontalFlip())
+        transforms_list.append(transforms.RandomRotation(10))
+
+    if args.dataset == "cifar10":
+        transforms_list.append(transforms.RandomHorizontalFlip())
+        
     transforms_list.append(transforms.ToTensor())        
     transforms_list_test.append(transforms.ToTensor())
 
@@ -69,15 +81,18 @@ def build_cleanset(args):
 def dataset(args, train, transform):
         if args.dataset == "cifar10":
             return torchvision.datasets.CIFAR10(root=args.data_root, transform=transform, download=True, train=train)
+        
+        elif args.dataset == "cifar100":
+            return torchvision.datasets.CIFAR100(root=args.data_root, transform=transform, download=True, train=train)
 
         elif args.dataset == "gtsrb":
             return torchvision.datasets.ImageFolder(root=args.data_root+'/GTSRB/Train' if train \
                 else args.data_root+'/GTSRB/val4imagefolder', transform=transform)
             # return torchvision.datasets.GTSRB(root=args.data_root+'gtsrb_torch', split='train' if train \
             #  else 'test', transform=transform, download=True)
-        elif args.dataset == "tiny-imagenet":
-            return torchvision.datasets.ImageFolder(root=args.data_root+'/tiny-imagenet-200/train' if train \
-                                        else args.data_root + '/tiny-imagenet-200/val', transform=transform)
+        elif args.dataset == "tiny":
+            return TinyImageNet(root=args.data_root, split="train" if train else "val", 
+                                download=True, transform=transform)
 
         elif args.dataset == "imagenet200":
             return torchvision.datasets.ImageFolder(root=args.data_root+'/imagenet200/train' if train \

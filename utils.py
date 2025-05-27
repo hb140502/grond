@@ -18,11 +18,27 @@ def set_seed(seed):
     torch.cuda.manual_seed(seed)
 
 
-transform_train = transforms.Compose([
-    transforms.RandomCrop(32, padding=4),
-    transforms.RandomHorizontalFlip(),
-    transforms.ToTensor(),
-])
+transform_train = {
+    "cifar10": transforms.Compose([
+        transforms.RandomCrop(32, padding=4),
+        transforms.RandomRotation(10),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor()
+    ]),
+    "cifar10": transforms.Compose([
+        transforms.RandomCrop(32, padding=4),
+        transforms.RandomRotation(10),
+        transforms.ToTensor()
+    ]),    
+    "tiny": transforms.Compose([
+        transforms.RandomCrop(64, padding=4),
+        transforms.RandomRotation(10),
+        transforms.ToTensor()
+    ])    
+}   
+
+transform_train["gtsrb"] = transform_train["cifar10"]
+
 
 transform_test = transforms.Compose([
     transforms.ToTensor(),
@@ -67,23 +83,6 @@ def make_and_restore_model(args, resume_path=None):
         model = resnet50(num_classes=args.num_classes)
     elif args.arch == 'DenseNet121':
         model = DenseNet121(num_classes=args.num_classes)
-    elif args.arch == 'EfficientNetB0':
-        model = EfficientNetB0()
-    elif args.arch == 'inception_next_tiny':
-        model = inception_next_tiny(num_classes=args.num_classes)
-    elif args.arch == 'inception_next_small':
-        model = inception_next_small(num_classes=args.num_classes)
-    elif args.arch == 'swin':
-        model = SwinTransformer(img_size=32,
-                num_classes=10,
-                window_size=4, 
-                patch_size=2, 
-                embed_dim=96, 
-                depths=[2, 6, 4], 
-                num_heads=[3, 6, 12],
-                mlp_ratio=2, 
-                qkv_bias=True, 
-                drop_path_rate=0.1)
 
     if resume_path is not None:
         print('\n=> Loading checkpoint {}'.format(resume_path))

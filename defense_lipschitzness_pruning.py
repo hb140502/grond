@@ -48,7 +48,7 @@ def main(args):
 
     if args.dataset=='cifar10':
         args.num_classes = 10
-        poi_test = CIFAR10_POI_TEST(args.clean_data_path, target_cls=args.target_cls, transform=transform_test, upgd_path=args.upgd_path)
+        poi_test = POI_TEST(args.dataset, args.clean_data_path, target_cls=args.target_cls, transform=transform_test, upgd_path=args.upgd_path)
         test_set = datasets.CIFAR10(args.clean_data_path, train=False, transform=transform_test)
     elif args.dataset=='imagenet200':
         args.num_classes = 200

@@ -23,7 +23,8 @@ pratio_label=$(echo p$pratio | tr . -)
 attack_id="${attack}_${model}_${dataset}_${pratio_label}"
 
 python train_backdoor.py --arch $model --dataset $dataset --pr 0.1 --epochs $n_epochs \
-                         --target_cls 0 --num_workers 2 \
+                         --target_cls 0 \
+                         --batch_size 100 --num_workers 2 \
                          --clean_data_path $data_dir/$dataset --out_dir $record_dir/$attack_id
 
 # Handle Grond failure

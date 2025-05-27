@@ -3,6 +3,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from torchvision import datasets
+from Tiny import TinyImageNet
 
 import argparse
 import os
@@ -16,10 +17,20 @@ from poison_loader import *
 def main(args):
     set_seed(args.seed)
 
-    if args.dataset=='cifar10':
-        data_set = CIFAR10_POI(args.clean_data_path, args.pr, target_cls=args.target_cls, transform=transform_train, upgd_path=args.upgd_path)
-        poi_test = CIFAR10_POI_TEST(args.clean_data_path, target_cls=args.target_cls, transform=transform_test, upgd_path=args.upgd_path)
+    if args.dataset in ['cifar10', 'cifar100', 'tiny']:
+        data_set = POI(args.dataset, args.clean_data_path, args.pr, target_cls=args.target_cls, transform=transform_train[args.dataset], save_path=args.poison_settings_save_path, upgd_path=args.upgd_path)
+        poi_test = POI_TEST(args.dataset, args.clean_data_path, target_cls=args.target_cls, transform=transform_test, upgd_path=args.upgd_path)
         test_set = datasets.CIFAR10(args.clean_data_path, train=False, transform=transform_test)
+
+        if args.dataset == "cifar10":
+            args.num_classes = 10
+            test_set = datasets.CIFAR10(args.clean_data_path, train=False, transform=transform_test)
+        elif args.dataset == "cifar100":
+            args.num_classes = 100
+            test_set = datasets.CIFAR100(args.clean_data_path, train=False, transform=transform_test)
+        else:
+            args.num_classes = 200
+            test_set = TinyImageNet(args.clean_data_path, split="val", transform=transform_test)
     elif args.dataset=='imagenet200':
         args.num_classes = 200
         data_set = ImageNet200_POI(args.clean_data_path, args.pr, target_cls=args.target_cls, transform=imagenet_transform_train, upgd_path=args.upgd_path)
@@ -27,7 +38,7 @@ def main(args):
         test_set = test_set = datasets.ImageFolder(root=args.clean_data_path+'/imagenet200/val', transform=imagenet_transform_test)
     elif args.dataset=='gtsrb':
         args.num_classes = 43
-        data_set = GTSRB_POI(args.clean_data_path, args.pr, target_cls=args.target_cls, transform=transform_train, upgd_path=args.upgd_path)
+        data_set = GTSRB_POI(args.clean_data_path, args.pr, target_cls=args.target_cls, transform=transform_train[args.dataset], upgd_path=args.upgd_path)
         poi_test = GTSRB_POI_TEST(args.clean_data_path, target_cls=args.target_cls, transform=gtsrb_transform_test, upgd_path=args.upgd_path)
         test_set = datasets.ImageFolder(root=args.clean_data_path+'/GTSRB/val4imagefolder', transform=gtsrb_transform_test)
     else:
@@ -82,7 +93,6 @@ if __name__ == "__main__":
     parser.add_argument('--pr', default=0.5, type=float, help='poisoning rate of the target class.')
     parser.add_argument('--eps', default=8, type=float)
     parser.add_argument('--constraint', default='Linf', choices=['Linf', 'L2'], type=str)
-    parser.add_argument('--num_classes', default=10, type=int)
 
     parser.add_argument('--arch', default='ResNet18', type=str, choices=['VGG16', 'VGG19', 'ResNet18', 
         'ResNet50', 'DenseNet121', 'EfficientNetB0', 'inception_next_tiny', 'inception_next_small'])
@@ -110,6 +120,7 @@ if __name__ == "__main__":
         args.weight_decay, args.pr, args.seed, args.ex_des)
     args.tensorboard_path = os.path.join(os.path.join(args.out_dir, args.exp_name), 'tensorboard')
     args.model_save_path = os.path.join(os.path.join(args.out_dir, args.exp_name), 'checkpoint.pth')
+    args.poison_settings_save_path = os.path.join(os.path.join(args.out_dir, args.exp_name), 'poison_settings.pth')
     args.lr_milestones = [100, 150]
     args.lr_step = 0.1
     args.log_gap = 1
