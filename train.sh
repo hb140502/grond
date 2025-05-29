@@ -28,22 +28,22 @@ function check_failure() {
     error_message=$2
 
     if [[ $error_code -ne 0 ]]; then
-        # mv "$record_dir/$attack_id" "$record_dir/FAIL_${attack_id}_${timestamp}"
+        mv "$record_dir/$attack_id" "$record_dir/FAIL_${attack_id}_${timestamp}"
         echo "!!! $error_message !!!"
         exit 1
     fi
 }
 
-# # Generate UPGD trigger
-# echo "!!! GENERATING TRIGGER !!!"
-# clean_model_path="$record_dir/prototype_${model_lowercase}_${dataset}_pNone/clean_model.pth"
-# python generate_upgd.py --arch $model --dataset $dataset \
-#                         --target_cls 0 \
-#                         --num_workers 2 \
-#                         --data_root $data_dir/$dataset --model_path $clean_model_path \
-#                         --upgd_path $record_dir/$attack_id
+# Generate UPGD trigger
+echo "!!! GENERATING TRIGGER !!!"
+clean_model_path="$record_dir/prototype_${model_lowercase}_${dataset}_pNone/clean_model.pth"
+python generate_upgd.py --arch $model --dataset $dataset \
+                        --target_cls 0 \
+                        --num_workers 2 \
+                        --data_root $data_dir/$dataset --model_path $clean_model_path \
+                        --upgd_path $record_dir/$attack_id
 
-# check_failure $? "FAILURE WHILE GENERATING TRIGGER"
+check_failure $? "FAILURE WHILE GENERATING TRIGGER"
 
 # Train on data poisoned with above trigger
 echo "!!! TRAINING BACKDOORED MODEL !!! "
