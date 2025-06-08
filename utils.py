@@ -17,29 +17,49 @@ def set_seed(seed):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
 
+normalization = {
+    "cifar10": ([0.4914, 0.4822, 0.4465], [0.247, 0.243, 0.261]),
+    "cifar100": ([0.5071, 0.4865, 0.4409], [0.2673, 0.2564, 0.2762]),
+    "tiny": ([0.4802, 0.4481, 0.3975], [0.2302, 0.2265, 0.2262])
+}
 
 transform_train = {
     "cifar10": transforms.Compose([
         transforms.RandomCrop(32, padding=4),
         transforms.RandomRotation(10),
         transforms.RandomHorizontalFlip(),
-        transforms.ToTensor()
-    ]),   
+        transforms.ToTensor(),
+        transforms.Normalize(*normalization["cifar10"])
+    ]),
+    "cifar100": transforms.Compose([
+        transforms.RandomCrop(32, padding=4),
+        transforms.RandomRotation(10),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize(*normalization["cifar100"])
+    ]),  
     "tiny": transforms.Compose([
         transforms.RandomCrop(64, padding=4),
         transforms.RandomRotation(10),
-        transforms.ToTensor()
+        transforms.ToTensor(),
+        transforms.Normalize(*normalization["tiny"])
     ])    
-}   
+}
 
-transform_train["cifar100"] = transform_train["cifar10"]
-transform_train["gtsrb"] = transform_train["cifar10"]
-
-
-transform_test = transforms.Compose([
-    transforms.ToTensor(),
-])
-
+transform_test = {
+    "cifar10": transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(*normalization["cifar10"])
+    ]),
+    "cifar100": transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(*normalization["cifar100"])
+    ]),  
+    "tiny": transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(*normalization["tiny"])
+    ])    
+}
 
 gtsrb_transform_test = transforms.Compose([
     transforms.Resize(32),

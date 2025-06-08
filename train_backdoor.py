@@ -19,17 +19,17 @@ def main(args):
 
     if args.dataset in ['cifar10', 'cifar100', 'tiny']:
         data_set = POI(args.dataset, args.clean_data_path, args.pr, target_cls=args.target_cls, transform=transform_train[args.dataset], save_path=args.poison_indices_save_path, upgd_path=args.upgd_path)
-        poi_test = POI_TEST(args.dataset, args.clean_data_path, target_cls=args.target_cls, transform=transform_test, upgd_path=args.upgd_path)
+        poi_test = POI_TEST(args.dataset, args.clean_data_path, target_cls=args.target_cls, transform=transform_test[args.dataset], upgd_path=args.upgd_path)
 
         if args.dataset == "cifar10":
             args.num_classes = 10
-            test_set = datasets.CIFAR10(args.clean_data_path, train=False, transform=transform_test)
+            test_set = datasets.CIFAR10(args.clean_data_path, train=False, transform=transform_test[args.dataset])
         elif args.dataset == "cifar100":
             args.num_classes = 100
-            test_set = datasets.CIFAR100(args.clean_data_path, train=False, transform=transform_test)
+            test_set = datasets.CIFAR100(args.clean_data_path, train=False, transform=transform_test[args.dataset])
         else:
             args.num_classes = 200
-            test_set = TinyImageNet(args.clean_data_path, split="val", transform=transform_test)
+            test_set = TinyImageNet(args.clean_data_path, split="val", transform=transform_test[args.dataset])
     elif args.dataset=='imagenet200':
         args.num_classes = 200
         data_set = ImageNet200_POI(args.clean_data_path, args.pr, target_cls=args.target_cls, transform=imagenet_transform_train, upgd_path=args.upgd_path)
