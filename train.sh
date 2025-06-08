@@ -39,7 +39,7 @@ echo "!!! GENERATING TRIGGER !!!"
 clean_model_path="$record_dir/prototype_${model_lowercase}_${dataset}_pNone/clean_model.pth"
 python generate_upgd.py --arch $model --dataset $dataset \
                         --target_cls 0 \
-                        --num_workers 2 \
+                        --batch_size 100 --num_workers 2 \
                         --data_root $data_dir/$dataset --model_path $clean_model_path \
                         --upgd_path $record_dir/$attack_id
 
@@ -47,7 +47,7 @@ check_failure $? "FAILURE WHILE GENERATING TRIGGER"
 
 # Train on data poisoned with above trigger
 echo "!!! TRAINING BACKDOORED MODEL !!! "
-python train_backdoor.py --arch $model --dataset $dataset --pr 0.1 --epochs $n_epochs \
+python train_backdoor.py --arch $model --dataset $dataset --pr $pratio --epochs $n_epochs \
                          --target_cls 0 \
                          --batch_size 100 --num_workers 2 \
                          --clean_data_path $data_dir/$dataset --upgd_path $record_dir/$attack_id \
