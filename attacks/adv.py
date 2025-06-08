@@ -5,7 +5,7 @@ from tqdm import tqdm
 import sys
 sys.path.append('..')
 
-from utils import AverageMeter, accuracy_top1, accuracy
+from utils_grond import AverageMeter, accuracy_top1, accuracy
 from attacks.step import LinfStep, L2Step
 
 STEPS = {

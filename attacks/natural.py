@@ -5,7 +5,7 @@ from tqdm import tqdm
 import sys
 sys.path.append('..')
 
-from utils import AverageMeter, accuracy_top1
+from utils_grond import AverageMeter, accuracy_top1
 
 
 def natural_attack(args, model, loader, writer=None, epoch=0, loop_type='test'):

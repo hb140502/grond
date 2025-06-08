@@ -3,7 +3,7 @@ import torch.nn as nn
 from tqdm import tqdm
 from torch.cuda.amp import autocast, GradScaler
 
-from utils import AverageMeter, accuracy_top1
+from utils_grond import AverageMeter, accuracy_top1
 from attacks.adv import adv_attack, batch_adv_attack
 from attacks.natural import natural_attack
 from lipschitzness_pruning import CLP
