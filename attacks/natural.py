@@ -16,8 +16,8 @@ def natural_attack(args, model, loader, writer=None, epoch=0, loop_type='test'):
 
     iterator = tqdm(enumerate(loader), total=len(loader), ncols=110)
     for i, (inp, target) in iterator:
-        inp = inp.cuda(non_blocking=True)
-        target = target.cuda(non_blocking=True)
+        inp = inp.to(args.device, non_blocking=True)
+        target = target.to(args.device, non_blocking=True)
 
         logits = model(inp)
 

@@ -110,9 +110,11 @@ if __name__ == "__main__":
     parser.add_argument('--epochs', default=200, type=int)
 
     parser.add_argument('--gpuid', default=0, type=int)
+    parser.add_argument('--device', default="cuda:0", type=str)
 
     args = parser.parse_args()
-    
+
+    args.device = torch.device(args.device)
     args.tensorboard_path = os.path.join(args.out_dir, 'tensorboard')
     args.model_save_path = os.path.join(args.out_dir, 'checkpoint.pth')
     args.poison_indices_save_path = os.path.join(args.out_dir, 'poison_indices.pth')

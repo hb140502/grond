@@ -116,7 +116,7 @@ def make_and_restore_model(args, resume_path=None):
                 model.load_state_dict(checkpoint)
     
     model = torch.nn.DataParallel(model)
-    model = model.cuda()
+    model = model.to(args.device, )
     return model
 
 

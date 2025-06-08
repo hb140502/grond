@@ -44,7 +44,7 @@ class UnNormalize(object):
         return tensor
 
 def universal_target_attack(model, loader, target_class, args):
-    delta = torch.zeros(1, *args.data_shape).cuda(non_blocking=True)
+    delta = torch.zeros(1, *args.data_shape).to(args.device, non_blocking=True)
     orig_delta = delta.clone().detach()
     step = STEPS[args.constraint](orig_delta, args.eps, args.step_size)
 
@@ -61,8 +61,8 @@ def universal_target_attack(model, loader, target_class, args):
         except StopIteration:
             data_iter = iter(data_loader)
             inp, target = next(data_iter)
-        inp = inp.cuda(non_blocking=True)
-        target = target.cuda(non_blocking=True)
+        inp = inp.to(args.device, non_blocking=True)
+        target = target.to(args.device, non_blocking=True)
         target_ori = target.clone()
         target.fill_(target_class)
 
@@ -103,9 +103,9 @@ def main(args):
         args.data_shape = (args.channel, args.img_size, args.img_size)
         transforms_list.append(transforms.RandomResizedCrop(args.img_size))
         transforms_list.append(transforms.ToTensor()) 
-        transform_test = transforms.Compose(transforms_list)
-        data_set = torchvision.datasets.ImageFolder(root=args.data_root+'/imagenet200/train', transform=transform_test)
-        test_set = torchvision.datasets.ImageFolder(root=args.data_root+'/imagenet200/val', transform=transform_test)
+        transform = transforms.Compose(transforms_list)
+        data_set = torchvision.datasets.ImageFolder(root=args.data_root+'/imagenet200/train', transform=transform)
+        test_set = torchvision.datasets.ImageFolder(root=args.data_root+'/imagenet200/val', transform=transform)
     elif args.dataset=='cifar10':
         args.num_classes=10
         args.img_size  = 32
@@ -135,9 +135,9 @@ def main(args):
         transforms_list.append(transforms.Resize(args.img_size))
         transforms_list.append(transforms.CenterCrop(args.img_size))
         transforms_list.append(transforms.ToTensor())
-        transform_test = transforms.Compose(transforms_list)
-        data_set = torchvision.datasets.ImageFolder(root=args.data_root+'/GTSRB/Train', transform=transform_test)
-        test_set = torchvision.datasets.ImageFolder(root=args.data_root+'/GTSRB/val4imagefolder', transform=transform_test)
+        transform = transforms.Compose(transforms_list)
+        data_set = torchvision.datasets.ImageFolder(root=args.data_root+'/GTSRB/Train', transform=transform)
+        test_set = torchvision.datasets.ImageFolder(root=args.data_root+'/GTSRB/val4imagefolder', transform=transform)
     else:
         print('Check dataset.')
         exit(0)
@@ -184,8 +184,11 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', default=256, type=int)
 
     parser.add_argument('--target_cls', default=0, type=int)
+    parser.add_argument('--device', default="cuda:0", type=str)
 
     args = parser.parse_args()
+
+    args.device = torch.device(args.device)
 
     if not os.path.exists(args.upgd_path):
         os.makedirs(args.upgd_path)

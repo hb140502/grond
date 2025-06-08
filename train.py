@@ -35,8 +35,8 @@ def train(args, model, optimizer, loader, writer, epoch, scaler):
 
     iterator = tqdm(enumerate(loader), total=len(loader), ncols=95)
     for i, (inp, target) in iterator:
-        inp = inp.cuda(non_blocking=True)
-        target = target.cuda(non_blocking=True)
+        inp = inp.to(args.device, non_blocking=True)
+        target = target.to(args.device, non_blocking=True)
 
         with autocast():
             loss, logits = LOSS_FUNC[args.train_loss](args, model, inp, target)
