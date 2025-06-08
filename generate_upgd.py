@@ -36,7 +36,7 @@ def universal_target_attack(model, loader, target_class, args, normalizer):
     data_loader = DataLoader(loader.dataset, batch_size=args.batch_size, shuffle=True)
     data_iter = iter(data_loader)
 
-    iterator = tqdm(range(args.num_steps * 5), total=args.num_steps * 5)
+    iterator = tqdm(range(args.num_steps * 5), total=args.num_steps * 5, mininterval=10)
     for i in iterator:
         try:
             inp, target = next(data_iter)

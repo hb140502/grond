@@ -33,7 +33,7 @@ def train(args, model, optimizer, loader, writer, epoch, scaler):
     loss_logger = AverageMeter()
     acc_logger = AverageMeter()
 
-    iterator = tqdm(enumerate(loader), total=len(loader), ncols=95)
+    iterator = tqdm(enumerate(loader), total=len(loader), ncols=95, mininterval=10)
     for i, (inp, target) in iterator:
         inp = inp.to(args.device, non_blocking=True)
         target = target.to(args.device, non_blocking=True)
