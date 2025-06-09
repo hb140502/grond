@@ -23,6 +23,20 @@ pratio_label=$(echo p$pratio | tr . -)
 model_lowercase=$(echo "$model" | awk '{print tolower($0)}')
 attack_id="${attack}_${model_lowercase}_${dataset}_${pratio_label}"
 
+# Since attack is clean-label, we have to multiply pratio by the amount of classes in order to get the same amount of poisoned samples as dirty-label attacks
+case $dataset in
+    "cifar10")
+        n_classes=10;;
+    "cifar100")
+        n_classes=100;;
+    "tiny")
+        n_classes=200;;
+esac
+
+# Poisoning rate cannot exceed 100%
+pratio=$(echo "x=$pratio*$n_classes; if (x>1) print 1 else print x" | bc)
+echo $pratio
+
 function check_failure() {
     error_code=$1
     error_message=$2
