@@ -35,7 +35,6 @@ esac
 
 # Poisoning rate cannot exceed 100%
 pratio=$(echo "x=$pratio*$n_classes; if (x>1) print 1 else print x" | bc)
-echo $pratio
 
 function check_failure() {
     error_code=$1

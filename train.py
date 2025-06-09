@@ -33,7 +33,8 @@ def train(args, model, optimizer, loader, writer, epoch, scaler):
     loss_logger = AverageMeter()
     acc_logger = AverageMeter()
 
-    iterator = tqdm(enumerate(loader), total=len(loader), ncols=95, mininterval=10)
+    miniters = len(loader) // 100
+    iterator = tqdm(enumerate(loader), total=len(loader), ncols=95, miniters=miniters)
     for i, (inp, target) in iterator:
         inp = inp.to(args.device, non_blocking=True)
         target = target.to(args.device, non_blocking=True)
@@ -52,8 +53,9 @@ def train(args, model, optimizer, loader, writer, epoch, scaler):
         scaler.update()
         # optimizer.step()
 
-        desc = 'Train Epoch: {} | Loss {:.4f} | Accuracy {:.4f} ||'.format(epoch, loss_logger.avg, acc_logger.avg)
-        iterator.set_description(desc)
+        if i % miniters == 0:
+            desc = 'Train Epoch: {} | Loss {:.4f} | Accuracy {:.4f} ||'.format(epoch, loss_logger.avg, acc_logger.avg)
+            iterator.set_description(desc)
     
     if writer is not None:
         descs = ['loss', 'accuracy']

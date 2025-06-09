@@ -36,7 +36,7 @@ def universal_target_attack(model, loader, target_class, args, normalizer):
     data_loader = DataLoader(loader.dataset, batch_size=args.batch_size, shuffle=True)
     data_iter = iter(data_loader)
 
-    iterator = tqdm(range(args.num_steps * 5), total=args.num_steps * 5, mininterval=10)
+    iterator = tqdm(range(args.num_steps * 5), total=args.num_steps * 5, miniters=5)
     for i in iterator:
         try:
             inp, target = next(data_iter)
@@ -61,9 +61,10 @@ def universal_target_attack(model, loader, target_class, args, normalizer):
             # ASR
             acc = accuracy_top1(logits, target)
 
-        desc = ('[ Target class {}] | Loss {:.4f} | Accuracy {:.3f} ||'
+        if i % 5 == 0:
+            desc = ('[ Target class {}] | Loss {:.4f} | Accuracy {:.3f} ||'
                 .format(target_class, loss.item(), acc))
-        iterator.set_description(desc)
+            iterator.set_description(desc)
 
     return delta.clone().detach().requires_grad_(False)
 
