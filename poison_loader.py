@@ -175,11 +175,12 @@ class POI_TEST(Dataset):
 
     def __getitem__(self, index):
         img = self.cleanset[index][0]
+        img_tensor = torch.clamp(self.totensor(img)+self.upgd_data, 0, 1)
+        img = self.toimg(img_tensor)
         target = self.targets[index]
 
         if self.transform is not None:
             img = self.transform(img)
-            img = img + self.upgd_data
         return img, target
     
     def __len__(self):
