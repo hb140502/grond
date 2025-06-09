@@ -5,7 +5,7 @@
 #SBATCH -c 2
 #SBATCH --mem 5G
 #SBATCH --gres=gpu:rtx_2080_ti:1 
-#SBATCH --time=3:00:00
+#SBATCH --time=2:30:00
 
 . ./input_validation.sh
 input_validation $@
