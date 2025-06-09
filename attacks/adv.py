@@ -64,8 +64,8 @@ def adv_attack(args, model, loader, writer=None, epoch=0, loop_type='test'):
     acc_logger = AverageMeter()
     ATTACK_NAME = 'Adv-{}-{}'.format(args.num_steps, args.random_restarts)
 
-    miniters = len(loader) // 100
-    iterator = tqdm(enumerate(loader), total=len(loader), ncols=110, mininterval=10)
+    miniters = 2
+    iterator = tqdm(enumerate(loader), total=len(loader), ncols=110, miniters=miniters)
     for i, (inp, target) in iterator:
         inp = inp.to(args.device, non_blocking=True)
         target = target.to(args.device, non_blocking=True)

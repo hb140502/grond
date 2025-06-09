@@ -14,8 +14,8 @@ def natural_attack(args, model, loader, writer=None, epoch=0, loop_type='test'):
     acc_logger = AverageMeter()
     ATTACK_NAME = 'Natural'
 
-    miniters = len(loader) // 100
-    iterator = tqdm(enumerate(loader), total=len(loader), ncols=110, mininterval=10)
+    miniters = 20
+    iterator = tqdm(enumerate(loader), total=len(loader), ncols=110, miniters=miniters)
     for i, (inp, target) in iterator:
         inp = inp.to(args.device, non_blocking=True)
         target = target.to(args.device, non_blocking=True)
