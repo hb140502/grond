@@ -110,6 +110,14 @@ def main(args):
         transform_test = transforms.Compose([transforms.ToTensor()])
         data_set = TinyImageNet(args.data_root, split="train", download=True, transform=transform_test)
         test_set = TinyImageNet(args.data_root, split="val", download=True, transform=transform_test)
+    elif args.dataset=='imagenette':
+        args.num_classes=10
+        args.img_size  = 80
+        args.channel   = 3
+        args.data_shape = (args.channel, args.img_size, args.img_size)
+        transform_test = transforms.Compose([transforms.ToTensor()])
+        data_set = datasets.ImageFolder(root=os.path.join(args.data_root, "train"), transform=transform_test)
+        test_set = datasets.ImageFolder(root=os.path.join(args.data_root, "val"), transform=transform_test)
     elif args.dataset=='gtsrb':
         args.num_classes=43
         args.img_size  = 32

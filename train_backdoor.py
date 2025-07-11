@@ -17,7 +17,7 @@ from poison_loader import *
 def main(args):
     set_seed(args.seed)
 
-    if args.dataset in ['cifar10', 'cifar100', 'tiny']:
+    if args.dataset in ['cifar10', 'cifar100', 'tiny', 'imagenette']:
         data_set = POI(args.dataset, args.clean_data_path, args.pr, target_cls=args.target_cls, transform=transform_train[args.dataset], save_path=args.poison_indices_save_path, upgd_path=args.upgd_path)
         poi_test = POI_TEST(args.dataset, args.clean_data_path, target_cls=args.target_cls, transform=transform_test[args.dataset], upgd_path=args.upgd_path)
 
@@ -27,6 +27,9 @@ def main(args):
         elif args.dataset == "cifar100":
             args.num_classes = 100
             test_set = datasets.CIFAR100(args.clean_data_path, train=False, transform=transform_test[args.dataset])
+        elif args.dataset == "imagenette":
+            args.num_classes = 10
+            test_set = datasets.ImageFolder(os.path.join(args.clean_data_path, 'val'), transform=transform_test[args.dataset])
         else:
             args.num_classes = 200
             test_set = TinyImageNet(args.clean_data_path, split="val", transform=transform_test[args.dataset])

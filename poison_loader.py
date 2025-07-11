@@ -95,6 +95,8 @@ class POI(Dataset):
             self.cleanset = datasets.CIFAR10(root, train=True)
         elif dataset == "cifar100":
             self.cleanset = datasets.CIFAR100(root, train=True)
+        elif dataset == "imagenette":
+            self.cleanset = datasets.ImageFolder(os.path.join(root, "train"))
         elif dataset == "tiny":
             self.cleanset = TinyImageNet(root, split="train")
         else:
@@ -110,7 +112,7 @@ class POI(Dataset):
         else:
             np.random.seed(seed)
             # self.poison_indices = np.random.choice(range(50000), int(poison_rate*50000), replace=False)
-            self.poison_indices = random.sample(target_cls_ids, int(poison_rate*len(target_cls_ids)))
+            self.poison_indices = random.sample(target_cls_ids, int(poison_rate*len(self.cleanset)))
 
         if save_path:
             torch.save(self.poison_indices, save_path)
@@ -147,6 +149,8 @@ class POI_TEST(Dataset):
             self.cleanset = datasets.CIFAR10(root, train=False)
         elif dataset == "cifar100":
             self.cleanset = datasets.CIFAR100(root, train=False)
+        elif dataset == "imagenette":
+            self.cleanset = datasets.ImageFolder(os.path.join(root, "val"))
         elif dataset == "tiny":
             self.cleanset = TinyImageNet(root, split="val")
         else:
@@ -161,8 +165,8 @@ class POI_TEST(Dataset):
         self.toimg = transforms.Compose([transforms.ToPILImage()])
 
         if exclude_target:
-            # Tiny ImageNet has different attribute names than CIFAR10(0)
-            if dataset == "tiny":
+            # Imagenette and Tiny ImageNet have different attribute names than CIFAR10(0)
+            if dataset in ["tiny", "imagenette"]:
                 self.cleanset.samples = [self.cleanset.samples[i] for i in non_target_cls_ids]
                 self.cleanset.imgs = [self.cleanset.imgs[i] for i in non_target_cls_ids]
                 poison_target = np.repeat(target_cls, len(self.cleanset.samples), axis=0)

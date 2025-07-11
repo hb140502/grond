@@ -20,7 +20,8 @@ def set_seed(seed):
 normalization = {
     "cifar10": ([0.4914, 0.4822, 0.4465], [0.247, 0.243, 0.261]),
     "cifar100": ([0.5071, 0.4865, 0.4409], [0.2673, 0.2564, 0.2762]),
-    "tiny": ([0.4802, 0.4481, 0.3975], [0.2302, 0.2265, 0.2262])
+    "tiny": ([0.4802, 0.4481, 0.3975], [0.2302, 0.2265, 0.2262]),
+    "imagenette": ([0.4671, 0.4593, 0.4306], [0.2692, 0.2657, 0.2884])
 }
 
 transform_train = {
@@ -43,7 +44,13 @@ transform_train = {
         transforms.RandomRotation(10),
         transforms.ToTensor(),
         transforms.Normalize(*normalization["tiny"])
-    ])    
+    ]),
+    "imagenette": transforms.Compose([
+        transforms.RandomCrop(80, padding=4),
+        transforms.RandomRotation(10),
+        transforms.ToTensor(),
+        transforms.Normalize(*normalization["imagenette"])
+    ])  
 }
 
 transform_test = {
@@ -58,7 +65,11 @@ transform_test = {
     "tiny": transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(*normalization["tiny"])
-    ])    
+    ]),
+    "imagenette": transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(*normalization["imagenette"])
+    ])  
 }
 
 gtsrb_transform_test = transforms.Compose([

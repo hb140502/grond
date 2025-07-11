@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import os
+
 # torch package
 import torch
 import torchvision
@@ -39,6 +41,12 @@ def build_cleanset(args):
         args.channel   = 3
         args.mean = [0.4802, 0.4481, 0.3975]
         args.std = [0.2302, 0.2265, 0.2262]
+    elif args.dataset == "imagenette":
+        args.num_classes = 10
+        args.img_size  = 80
+        args.channel   = 3
+        args.mean = [0.4671, 0.4593, 0.4306], 
+        args.std = [0.2692, 0.2657, 0.2884]
     elif args.dataset == "imagenet200":
         args.num_classes = 200
         args.img_size  = 224
@@ -93,6 +101,10 @@ def dataset(args, train, transform):
         elif args.dataset == "tiny":
             return TinyImageNet(root=args.data_root, split="train" if train else "val", 
                                 download=True, transform=transform)
+        elif args.dataset == "imagenette":
+            split="train" if train else "val"
+            return torchvision.datasets.ImageFolder(root=os.path.join(args.data_root, split), 
+                                                    transform=transform)
 
         elif args.dataset == "imagenet200":
             return torchvision.datasets.ImageFolder(root=args.data_root+'/imagenet200/train' if train \
