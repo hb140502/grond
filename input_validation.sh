@@ -24,7 +24,7 @@ Usage: ${0} <ATTACK> <MODEL ARCHITECTURE> <DATASET> <POISON RATE> <NUMBER OF EPO
     dataset_regex="^cifar10|cifar100|tiny$"
     validate_str $dataset $dataset_regex
 
-    pratio_regex="^0.003|0.05|0.1$"
+    pratio_regex="^0.003|0.007|0.05$"
     validate_str $pratio $pratio_regex
 
     n_epochs_regex="^[0-9]+$"
