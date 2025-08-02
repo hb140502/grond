@@ -3,14 +3,16 @@
 . ./input_validation.sh
 input_validation $@
 
-repo_dir="$HOME/master-thesis/code/backdoorbench"
-my_dir="/vol/csedu-nobackup/project/hberendsen"
+my_dir=""
+
+if [[ -z $my_dir ]]; then
+    echo "Please set the 'my_dir' variable to the parent directory of the data and record folders"
+    exit 1
+fi
+
 data_dir="$my_dir/data"
 record_dir="$my_dir/record"
 timestamp=$(date +"T%d-%m_%H-%M")
-
-# conda activate grond
-source /vol/csedu-nobackup/project/hberendsen/miniconda3/bin/activate grond
 
 gpu=$(python get_gpu.py)
 
