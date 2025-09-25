@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import PIL
 from typing import Tuple
 from torch.optim import AdamW, Adam
+import timm
 
 from models.vgg import VGG16, VGG19
 from models.resnet import resnet18, resnet34, resnet50
@@ -110,6 +111,11 @@ def make_and_restore_model(args, resume_path=None):
         model = resnet50(num_classes=args.num_classes)
     elif args.arch == 'DenseNet121':
         model = DenseNet121(num_classes=args.num_classes)
+    elif args.arch == 'vit_small':
+        model = timm.create_model('vit_small_patch16_224', 
+                num_classes=args.num_classes, 
+                patch_size=args.patch_size, 
+                img_size=args.image_size)
 
     if resume_path is not None:
         print('\n=> Loading checkpoint {}'.format(resume_path))
@@ -126,8 +132,8 @@ def make_and_restore_model(args, resume_path=None):
             except:
                 model.load_state_dict(checkpoint)
     
-    model = torch.nn.DataParallel(model)
-    model = model.to(args.device, )
+    # model = torch.nn.DataParallel(model)
+    model = model.to(args.device)
     return model
 
 

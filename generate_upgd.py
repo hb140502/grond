@@ -158,7 +158,7 @@ if __name__ == "__main__":
     parser.add_argument('--constraint', default='Linf', choices=['Linf', 'L2'], type=str)
 
     parser.add_argument('--arch', default='ResNet18', type=str, choices=['VGG16', 'EfficientNetB0', 'DenseNet121', 
-        'ResNet18', 'swin', 'inception_next_tiny', 'inception_next_small'])
+        'ResNet18', 'swin', 'inception_next_tiny', 'inception_next_small', 'vit_small'])
     parser.add_argument('--model_path', default='results/clean_model_weight/checkpoint.pth', type=str)
 
     parser.add_argument('--dataset', default='cifar10', type=str)
@@ -172,6 +172,8 @@ if __name__ == "__main__":
 
     parser.add_argument('--target_cls', default=0, type=int)
     parser.add_argument('--device', default="cuda:0", type=str)
+    parser.add_argument('--patch_size', default=4, type=int)
+    parser.add_argument('--image_size', default=32, type=int)
 
     args = parser.parse_args()
 

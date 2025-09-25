@@ -35,3 +35,26 @@ def CLP(net, u):
             conv = m
 
     net.load_state_dict(params)
+
+
+def CLP_head(net, u):
+    params = net.state_dict()
+    num_heads = net.blocks[0].attn.num_heads
+    head_dim = net.blocks[0].attn.head_dim
+    
+    for name, m in net.named_modules():
+        head_lips = []
+        if 'qkv' in name:
+            head_weights = m.weight.reshape(3, num_heads, head_dim, -1)
+
+            for i in range(3):
+                for j in range(num_heads):
+                    weight = head_weights[i][j]
+                    head_lips.append(torch.svd(weight)[1].max())
+            head_lips = torch.Tensor(head_lips)
+            index = torch.where(head_lips>head_lips.mean() + u*head_lips.std())[0]
+
+            for i in index:
+                qkv_index = i//num_heads
+                heads_index = i%num_heads
+                head_weights[qkv_index][heads_index].data *= 0.5

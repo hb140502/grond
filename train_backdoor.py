@@ -67,7 +67,7 @@ def main(args):
             optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=args.weight_decay)
         
         # schedule
-        if args.dataset == 'imagenet200':
+        if args.dataset == 'imagenet200' or args.dataset == 'tiny':
             schedule = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=0)
         else:
             schedule = optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_milestones, gamma=args.lr_step)
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     parser.add_argument('--constraint', default='Linf', choices=['Linf', 'L2'], type=str)
 
     parser.add_argument('--arch', default='ResNet18', type=str, choices=['VGG16', 'VGG19', 'ResNet18', 
-        'ResNet50', 'DenseNet121', 'EfficientNetB0', 'inception_next_tiny', 'inception_next_small'])
+        'ResNet50', 'DenseNet121', 'EfficientNetB0', 'inception_next_tiny', 'inception_next_small', 'vit_small'])
     
     parser.add_argument('--dataset', default='cifar10', type=str)
     parser.add_argument('--out_dir', default='results/', type=str)
@@ -108,6 +108,10 @@ if __name__ == "__main__":
 
     parser.add_argument('--no_clp', action='store_true')
     parser.set_defaults(no_clp=False)
+
+    parser.add_argument('--patch_size', default=4, type=int)
+    parser.add_argument('--image_size', default=32, type=int)
+
 
     parser.add_argument('--num_workers', default=6, type=int)
     parser.add_argument('--epochs', default=200, type=int)

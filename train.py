@@ -6,7 +6,7 @@ from torch.cuda.amp import autocast, GradScaler
 from utils_grond import AverageMeter, accuracy_top1
 from attacks.adv import adv_attack, batch_adv_attack
 from attacks.natural import natural_attack
-from lipschitzness_pruning import CLP
+from lipschitzness_pruning import CLP, CLP_head
 
 def standard_loss(args, model, x, y):
     logits = model(x)
@@ -97,26 +97,46 @@ def train_model(args, model, optimizer, schedule, train_loader, val_loader, test
             is_best = our_acc > best_acc
             best_acc = max(our_acc, best_acc)
 
-            checkpoint = {
-                'model': model.module.state_dict(),
-                'epoch': epoch,
-                'train_acc': train_acc,
-                'train_loss': train_loss,
-                'cln_val_acc': cln_val_acc,
-                'cln_val_loss': cln_val_loss,
-                'cln_test_acc': cln_test_acc,
-                'cln_test_loss': cln_test_loss,
-                'adv_val_acc': adv_val_acc,
-                'adv_val_loss': adv_val_loss,
-                'adv_test_acc': adv_test_acc,
-                'adv_test_loss': adv_test_loss,
-                
-            }
-            if is_best:
-                torch.save(checkpoint, args.model_save_path)
+            if args.arch == "vit_small":
+                checkpoint = {
+                    'model': model.state_dict(),
+                    'epoch': epoch,
+                    'train_acc': train_acc,
+                    'train_loss': train_loss,
+                    'cln_val_acc': cln_val_acc,
+                    'cln_val_loss': cln_val_loss,
+                    'cln_test_acc': cln_test_acc,
+                    'cln_test_loss': cln_test_loss,
+                    'adv_val_acc': adv_val_acc,
+                    'adv_val_loss': adv_val_loss,
+                    'adv_test_acc': adv_test_acc,
+                    'adv_test_loss': adv_test_loss,
+                    
+                }
+            else:
+                checkpoint = {
+                    'model': model.state_dict(),
+                    'epoch': epoch,
+                    'train_acc': train_acc,
+                    'train_loss': train_loss,
+                    'cln_val_acc': cln_val_acc,
+                    'cln_val_loss': cln_val_loss,
+                    'cln_test_acc': cln_test_acc,
+                    'cln_test_loss': cln_test_loss,
+                    'adv_val_acc': adv_val_acc,
+                    'adv_val_loss': adv_val_loss,
+                    'adv_test_acc': adv_test_acc,
+                    'adv_test_loss': adv_test_loss,
+                    
+                }
+            # if is_best:
+            torch.save(checkpoint, args.model_save_path)
         schedule.step()
         if not args.no_clp:
-            CLP(model, args.u)
+            if args.arch=='vit_small':
+                CLP_head(model, 1.5)
+            else:
+                CLP(model, args.u)
     return model
 
 @torch.no_grad()
